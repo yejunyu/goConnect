@@ -1,6 +1,7 @@
 package net
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"zinx/iface"
@@ -15,6 +16,16 @@ type Server struct {
 	IP string
 	// 服务器端口
 	Port int
+}
+
+// 回显的业务抽离出来成一个函数
+func CallBak2Client(conn *net.TCPConn, data []byte, cnt int) error {
+	fmt.Println("Conn handle Callback2Client...")
+	if _, err := conn.Write(data[:cnt]); err != nil {
+		fmt.Println("write back err", err)
+		return errors.New("Callback2Client error")
+	}
+	return nil
 }
 
 func (s *Server) Start() {
@@ -32,6 +43,9 @@ func (s *Server) Start() {
 		return
 	}
 	fmt.Println("start server success ", s.Name, "listening...")
+
+	var cid uint32
+	cid = 0
 	// 3. 阻塞的等待客户端连接
 	for {
 		conn, err := listener.AcceptTCP()
@@ -39,21 +53,12 @@ func (s *Server) Start() {
 			fmt.Println("Accept error ", err)
 			continue
 		}
+
 		// 4. 处理客户端的读写业务
-		go func() {
-			for {
-				buf := make([]byte, 512)
-				cnt, err := conn.Read(buf)
-				if err != nil {
-					fmt.Println("recv buf err ", err)
-				}
-				// 回显功能
-				if _, err := conn.Write(buf[:cnt]); err != nil {
-					fmt.Println("write back buf err ", err)
-					continue
-				}
-			}
-		}()
+		dealConn := NewConnection(conn, cid, CallBak2Client)
+		cid++
+
+		go dealConn.Start()
 	}
 
 }

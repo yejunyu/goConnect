@@ -20,7 +20,7 @@ func main() {
 	}
 	for {
 		// 连接调用write,写数据
-		_, err := conn.Write([]byte("hello i am client~"))
+		_, err := conn.Write([]byte("hello i am client~ V0.1"))
 		if err != nil {
 			fmt.Println("write conn err", err)
 			return
