@@ -12,7 +12,7 @@ type IConnection interface {
 	GetTCPConnection() *net.TCPConn
 	// 获取当前连接模块的连接id
 	GetConnId() uint32
-	// 获取远程科幻段的TCP状态 IP PORT
+	// 获取远程连接的TCP状态 IP PORT
 	GetRemoteAddr() net.Addr
 	// 发送数据, 讲数据发送给远程的客户端
 	Send(data []byte) error
